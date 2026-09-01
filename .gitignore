@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+.env
+*.pyc
+*.json
+!data/golden_qa.json
+!data/rubric.yaml
+results*.json
