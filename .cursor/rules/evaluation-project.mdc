@@ -1,0 +1,70 @@
+---
+description: Project-wide implementation guidance for the RAG agent evaluation repository
+alwaysApply: true
+---
+
+# Cursor instructions for this repository
+
+## Mission
+
+This repository is the evaluation and benchmarking layer for the multi-cloud retail agent. Follow `IMPLEMENTATION_PLAN.md` as the source of truth for scope, phases, tasks, and acceptance criteria.
+
+The live agent remains in the separate `multi-cloud-retail-agent` repository. This repository evaluates it; it is not a second agent application.
+
+## Mandatory workflow
+
+1. Before editing, inspect the relevant files, tests, dependencies, configuration, and current Git diff.
+2. Read the relevant phase in `IMPLEMENTATION_PLAN.md`.
+3. Work on one phase or one clearly bounded task at a time.
+4. First explain the current state and proposed minimal changes. Then implement only the approved phase/task.
+5. Preserve existing CLI behaviour and demo workflows unless a migration is explicitly necessary and documented.
+6. Add or update tests with each code change. Run the narrow tests first, then the relevant full suite.
+7. Update documentation and examples to match implemented behaviour.
+8. Summarise changed files, commands run, actual results, unresolved issues, and next recommended task.
+
+## Architecture boundaries
+
+- Keep agent business logic, LangGraph orchestration, retrieval implementation, runtime model routing, runtime guardrails, authorization, tool execution, and human approval enforcement in `multi-cloud-retail-agent`.
+- Keep datasets, evaluators, offline/online evaluation jobs, benchmark reports, and evaluation CI workflows here.
+- Integrate through documented API/trace/export contracts. Do not import private app internals or copy app modules into this repository.
+- If evaluation needs fields the agent does not expose (retrieved chunks, source IDs, selected provider/model, routing reason, tool decisions, latency, tokens), document the missing contract and propose the smallest app-side change. Do not fabricate evidence.
+- Evaluation scores are measurements, not runtime security controls. Never use an LLM judge as the sole enforcement mechanism for authorization, approved-provider policies, or human approval.
+
+## Quality and safety requirements
+
+- Preserve the current golden dataset, rubric, fact-coverage evaluator, judge, CLI, and reporting functionality. Extend them rather than replacing them without a clear reason.
+- Keep deterministic metrics separate from heuristic and LLM-judge metrics in schemas and reports.
+- Use deterministic checks for security-critical policy outcomes.
+- Keep provider APIs and Langfuse optional where practical; local/offline evaluation should remain useful.
+- Read secrets only from environment variables or approved secret stores. Never commit secrets or include them in logs, fixtures, screenshots, or reports.
+- Minimise production data. Redact sensitive content before external judge calls and document sampling and retention.
+- Never claim a metric, provider integration, test, or benchmark is implemented unless verified by code and an actual run.
+- Do not create unnecessary services, databases, queues, dashboards, abstractions, or dependencies.
+- Pin or constrain dependencies appropriately and explain significant dependency additions.
+- Make tests deterministic; mock network/provider calls in unit tests.
+- Treat retrieved documents and model outputs as untrusted data in security test cases.
+
+## Implementation order
+
+Follow the phase sequence in `IMPLEMENTATION_PLAN.md`:
+0. Audit and baseline.
+1. Evaluation schemas and datasets.
+2. Offline RAG evaluation.
+3. Model routing/provider benchmarks.
+4. Security and governance evaluation.
+5. Optional Langfuse online evaluation.
+6. CI/CD regression gates.
+7. Documentation and reproducible demo.
+
+Do not skip the baseline audit. Do not implement all phases in one large change. Do not start a later phase while acceptance criteria for the current phase remain unmet unless the user explicitly changes priorities.
+
+## Reporting format for each task
+
+At the end of each implementation task, report:
+- **Implemented:** concrete behaviour and files changed.
+- **Tests:** exact commands and actual pass/fail outcomes.
+- **Not implemented / blocked:** missing API fields, credentials, external services, or assumptions.
+- **Acceptance criteria:** met / partially met / not met.
+- **Next step:** the smallest next task from the plan.
+
+When asked to plan or review, do not modify code. When asked to implement, stay within the requested phase and scope.
