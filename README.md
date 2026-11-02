@@ -17,14 +17,14 @@ This repo is intentionally separate so the evaluation workflow can be reused as 
 - curated golden Q&A dataset
 - rubric-driven scoring
 - factual coverage checks
-- optional LLM-as-a-judge evaluation
-- CSV/JSON reporting for demos and comparison runs
+- a rubric for a later judge (correctness, groundedness, completeness, helpfulness, tone)
+- JSON reporting from `scripts/run_eval.py`
 
 ## Demo positioning
 
 For GitHub demo purposes, the recommended split is:
 
-1. Keep the agent in [multi-cloud-retail-agent](../multi-cloud-retail-agent)
+1. Keep the agent in [multi-cloud-retail-agent](https://github.com/affanahmed373/multi-cloud-retail-agent)
 2. Keep evals, scoring, and benchmarking here in this repo
 3. Point the eval suite at a local or deployed agent URL
 
@@ -40,16 +40,12 @@ rag-agent-evals/
 ├─ README.md
 ├─ pyproject.toml
 ├─ requirements.txt
-├─ .env.example
 ├─ data/
 │  ├─ golden_qa.json
 │  └─ rubric.yaml
 ├─ rag_agent_evals/
 │  ├─ __init__.py
-│  ├─ dataset.py
-│  ├─ judge.py
-│  ├─ cli.py
-│  └─ report.py
+│  └─ dataset.py
 └─ scripts/
    └─ run_eval.py
 ```
@@ -61,7 +57,6 @@ cd rag-agent-evals
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
 ```
 
 Then point the script at the agent you want to evaluate:
@@ -107,30 +102,23 @@ Each item includes:
 
 ## Metrics
 
-This repo includes two main layers:
+`scripts/run_eval.py` scores **facts coverage**: it checks whether each item's required facts appear in the agent's answer, marks a row as passed at 0.75 or above, and writes `results.json`. It calls a running agent. This repository has no saved run, so no score is published here.
 
-1. Rule-based factual coverage
-   - checks whether the required facts appear in the answer
-   - gives a quick pass/fail signal for demo runs
-
-2. Optional LLM-as-a-judge
-   - uses the rubric stored under data/rubric.yaml
-   - scores correctness, groundedness, completeness, helpfulness, and tone
-   - outputs a summary report with average scores and pass/fail flags
+`data/rubric.yaml` lists correctness, groundedness, completeness, helpfulness, and tone for a later judge. The script does not fill those dimensions.
 
 ## Recommended demo flow
 
 ### Local demo
 
 ```bash
-cd ../multi-cloud-retail-agent
+git clone https://github.com/affanahmed373/multi-cloud-retail-agent.git
+cd multi-cloud-retail-agent
 uv run uvicorn backend.api.main:app --reload
 ```
 
 Then from this repo:
 
 ```bash
-cd ../rag-agent-evals
 python3 scripts/run_eval.py --base-url http://localhost:8000 --provider mock --limit 10
 ```
 
@@ -153,7 +141,7 @@ GEMINI_API_KEY=
 DEEPSEEK_API_KEY=
 ```
 
-If no judge key is present, the runner falls back to fact-coverage scoring so the demo still works offline.
+`scripts/run_eval.py` scores facts coverage against the agent URL. It does not call a judge, and it does not read these keys.
 
 ## Deliverable intent
 
