@@ -3,6 +3,10 @@
 Planned improvements. Each item lists the skill it proves and what "done" means.
 Add the skill to the CV only after the item is pushed.
 
+## Frontend showcase and hosting
+- Frontend: none. This repo has no app; a static results page is enough.
+- Hosting: GitHub Pages for the HTML report of each run (section 4), plus the README results table and CI badge. Free, no server.
+
 ## 1. Publish results (priority: high)
 Proves: evaluation with real numbers.
 - [ ] Run `scripts/run_eval.py` against the retail agent for each provider and retrieval mode.
@@ -24,7 +28,7 @@ Proves: CI/CD release gates for LLM apps.
 - [ ] GitHub Actions job runs the eval against the mock or a cheap provider on every PR.
 - [ ] Fail the job when the pass rate drops below a threshold.
 - [ ] CI badge and the latest pass rate at the top of the README. This repo has no app to host; the README table and badge are its demo.
-- [ ] Optional: publish the HTML report of each run to GitHub Pages.
+- [ ] Publish the HTML report of each run to GitHub Pages.
 
 ## 5. MLflow tracking (priority: medium)
 Proves: MLflow experiment tracking.
